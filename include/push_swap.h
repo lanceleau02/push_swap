@@ -6,7 +6,7 @@
 /*   By: laprieur <laprieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/30 14:20:52 by laprieur          #+#    #+#             */
-/*   Updated: 2024/05/28 11:11:07 by laprieur         ###   ########.fr       */
+/*   Updated: 2024/05/28 23:20:07 by laprieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ t_swap	*ft_stacklast(t_swap *stack);
 /* ************************************************************************** */
 
 void	checker(int argc, char **argv);
-void	ft_print_all_list(t_swap *stacK_a, t_swap *stack_b);
 void	manual_sort(t_swap **stack_a, t_swap **stack_b);
 
 #endif
