@@ -97,14 +97,157 @@ void	push_swap(int argc, char **argv)
 }
 ```
 
-First, we create some variables, `parsed_args` and `numbers` that will store the numbers passed as parameters by the user, first as `char **` and after 
+The program's logic is based on **four** main stages: **parsing**, **stacks creation**, **indexing** and **sorting**. 
+
+### File: operations.c
+
+Now let's take a look at the different manipulation operations.
+
+<details>
+
+<summary>swap</summary>
+
+<br>
+
+```C
+void	swap(t_swap **stack, char c)
+{
+	int		tmp;
+
+	if (*stack == NULL || (*stack)->next == NULL)
+		return ;
+	tmp = (*stack)->content;
+	(*stack)->content = (*stack)->next->content;
+	(*stack)->next->content = tmp;
+	if (c == 'a')
+		write(1, "sa\n", 3);
+	else if (c == 'b')
+		write(1, "sb\n", 3);
+}
+```
+For the `swap()` function, we first perfom some basic verifications and do a classic swap as we can do with two pointers: a `tmp` variable stores the content of the first node, its content is then set to the content of the second node and finally, the content of the second node is set to the value stored in `tmp`, completing the swap.
+
+</details>
+
+---
+
+<details>
+
+<summary>push</summary>
+
+<br>
+
+```C
+void	push(t_swap **from_stack, t_swap **to_stack, char c)
+{
+	t_swap	*first;
+	t_swap	*tmp;
+
+	if (ft_define_nb_element_stack(*from_stack) < 1)
+		return ;
+	if (*from_stack != NULL)
+	{
+		first = *from_stack;
+		*from_stack = (*from_stack)->next;
+	}
+	if (*to_stack != NULL)
+	{
+		tmp = *to_stack;
+		first->next = tmp;
+		*to_stack = first;
+	}
+	else
+	{
+		*to_stack = first;
+		first->next = NULL;
+	}
+	if (c == 'a')
+		write(1, "pa\n", 3);
+	else if (c == 'b')
+		write(1, "pb\n", 3);
+}
+```
+For the `push()` function, first we check if `from_stack` has at least one element. Then, we remove the top node from `from_stack` and assign it to the variable `first`. This node is then moved to the top of `to_stack`, if `to_stack` is not empty, the current top node of `to_stack` is set as the next node of `first`. On the other hand, if `to_stack` is empty, `first` becomes the new top node with its next pointer set to `NULL`.
+
+</details>
+
+---
+
+<details>
+
+<summary>rotate</summary>
+
+<br>
+
+```C
+void	rotate(t_swap **stack, char c)
+{
+	t_swap	*tmp;
+
+	if ((*stack) == NULL)
+		return ;
+	if ((*stack)->next != NULL)
+	{
+		tmp = *stack;
+		*stack = (*stack)->next;
+		ft_stacklast(*stack)->next = tmp;
+		tmp->next = NULL;
+	}
+	if (c == 'a')
+		write(1, "ra\n", 3);
+	else if (c == 'b')
+		write(1, "rb\n", 3);
+}
+```
+For the `rotate()` function, first we check if `stack` is non-empty. If `stack` has more than one node, we store the current top node in the variable `tmp`, then update the top of `stack` to the next node. We then set the next pointer of the last node in the updated `stack` to `tmp`, making it the new last node, and set `tmp`'s next pointer to `NULL`.
+
+</details>
+
+---
+
+<details>
+
+<summary>reverse rotate</summary>
+
+<br>
+
+```C
+void	reverse_rotate(t_swap **stack, char c)
+{
+	t_swap	*prev;
+	t_swap	*last;
+
+	if ((*stack) == NULL)
+		return ;
+	if ((*stack)->next != NULL)
+	{
+		prev = *stack;
+		last = (*stack)->next;
+		while (last->next != NULL)
+		{
+			prev = last;
+			last = last->next;
+		}
+		last->next = *stack;
+		*stack = last;
+		prev->next = NULL;
+	}
+	if (c == 'a')
+		write(1, "rra\n", 4);
+	else if (c == 'b')
+		write(1, "rrb\n", 4);
+}
+```
+For the `reverse_rotate()` function, first we check if `stack` is non-empty. If `stack` has more than one node, we traverse `stack` to find the last node and the node just before it, using `prev` and `last`. Once we reach the last node, we update its next pointer to point to the original top of the stack and make it the new top. We then set `prev`'s next pointer to `NULL` to mark the end of the stack.
+
+</details>
 
 <h2>🧰 Toolbox</h2>
 
-- [printfTester](https://github.com/Tripouille/printfTester)
-- [ft_printf tester](https://github.com/paulo-santana/ft_printf_tester)
+- [Tester](https://gitlab.com/nda-cunh/push_swap-testeur-max)
+- [Visualizer](https://gitlab.com/nda-cunh/visualizer-push-swap)
 
 <h2>📚 Resources</h2>
 
-- [printf Manual](https://man7.org/linux/man-pages/man3/printf.3.html)
-- [stdarg Manual](https://man7.org/linux/man-pages/man3/va_arg.3.html)
+- [Quicksort (Wikipedia)](https://en.wikipedia.org/wiki/Quicksort)
+- [QuickSort (GeeksforGeeks)](https://man7.org/linux/man-pages/man3/va_arg.3.html)
