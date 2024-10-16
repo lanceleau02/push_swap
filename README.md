@@ -97,7 +97,23 @@ void	push_swap(int argc, char **argv)
 }
 ```
 
-The program's logic is based on **four** main stages: **parsing**, **stacks creation**, **indexing** and **sorting**. 
+The program's logic is based on **four** main stages: **parsing**, **stacks creation**, **indexing** and **sorting**. We'll not see the **parsing** part because it's not an important part in this project.
+
+1) parsing the arguments
+2) create an int* with the parsed args
+3) create an int* with the sorted numbers
+4) create the stack a
+5) indexing the elements with ft_indexing():
+
+This function indexes the elements of stack_a based on their position in the sorted version of the array (sort).
+
+The function compares each element of the unsorted array (unsort) with the sorted array (sort), and when it finds a match, it assigns that position (index) to the corresponding element in the stack (stack_a). 
+
+This indexing is useful for sorting algorithms, where you often want to keep track of each element’s position in the sorted order.
+
+This is a mapping function that transforms the stack’s values into their indices in a sorted sequence, likely preparing for a sorting algorithm that operates based on these indices rather than the raw values.
+
+6) sort the elements
 
 ### File: operations.c
 
