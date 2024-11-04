@@ -97,23 +97,271 @@ void	push_swap(int argc, char **argv)
 }
 ```
 
-The program's logic is based on **four** main stages: **parsing**, **stacks creation**, **indexing** and **sorting**. We'll not see the **parsing** part because it's not an important part in this project.
+The program's logic is based on **four** main stages: **parsing**, **stacks creation**, **indexing** and **sorting**. We'll not see the **parsing** part because it's not an important part of this project.
 
-1) parsing the arguments
-2) create an int* with the parsed args
-3) create an int* with the sorted numbers
-4) create the stack a
-5) indexing the elements with ft_indexing():
+The first important step is the creation of two `int*` named `numbers` and `sort_numbers`, they will respectively store the unsorted and sorted numbers. Then, we create a linked-list named `stack_a` that stores the unsorted numbers, and a second one named `stack_b` initialized to `NULL`, according to the subject.
 
-This function indexes the elements of stack_a based on their position in the sorted version of the array (sort).
+Finally, we can call the `ft_indexing()` and `ft_sorting()` functions.
 
-The function compares each element of the unsorted array (unsort) with the sorted array (sort), and when it finds a match, it assigns that position (index) to the corresponding element in the stack (stack_a). 
+### File: manage_index.c
+
+Now let's see the `ft_indexing()` function:
+
+```C
+void	ft_indexing(int *sort, int *unsort, int nb_element, t_swap **stack_a)
+{
+	t_swap	*head;
+	int		i;
+	int		j;
+
+	i = 0;
+	head = *stack_a;
+	while (i < nb_element)
+	{
+		j = 0;
+		while (j < nb_element)
+		{
+			if (unsort[i] == sort[j])
+			{
+				(*stack_a)->index = j;
+				*stack_a = (*stack_a)->next;
+			}
+			j++;
+		}
+		i++;
+	}
+	*stack_a = head;
+}
+```
+
+This function indexes the elements of `stack_a`, based on their position in the sorted version of the `sort` array.
+
+The function compares each element of the unsorted array (`unsort`) with the sorted array (`sort`), and when it finds a match, it assigns that position (`index`) to the corresponding element in the `stack_a`. 
 
 This indexing is useful for sorting algorithms, where you often want to keep track of each element’s position in the sorted order.
 
-This is a mapping function that transforms the stack’s values into their indices in a sorted sequence, likely preparing for a sorting algorithm that operates based on these indices rather than the raw values.
+This is a mapping function that transforms the stack’s values into their indices in a sorted sequence, preparing for the sorting algorithm that operates based on these indices rather than the raw values.
 
-6) sort the elements
+### File: sort.c
+
+Finally, we'll see the `ft_sorting()` function:
+
+```C
+void	ft_sorting(t_swap **stack_a, t_swap **stack_b, int nb_element)
+{
+	if (ft_verify_sort(*stack_a, *stack_b) == 0 || nb_element == 1)
+		return ;
+	else if (nb_element == 2)
+		ft_sort_two(stack_a);
+	else if (nb_element == 3)
+		ft_sort_three(stack_a);
+	else if (nb_element == 4)
+		ft_sort_four(stack_a, stack_b, nb_element);
+	else if (nb_element == 5)
+		ft_sort_five(stack_a, stack_b, nb_element);
+	else
+		ft_sort(stack_a, stack_b, nb_element, 0);
+}
+```
+
+The core of the function is here but we'll see later each function more in details. So, first, we verify if the elements in the `stack_a` are sorted or if there is just one element.
+
+To improve the efficiency of the program, we manually manage the cases where there are two, three, four or five elements to sort. So let's see more in details each sorting functions.
+
+<details>
+
+<summary>ft_sort_two()</summary>
+
+<br>
+
+```C
+void	ft_sort_two(t_swap **stack_a)
+{
+	if ((*stack_a)->content < (*stack_a)->next->content)
+		return ;
+	swap(stack_a, 'a');
+}
+```
+For this function, if the elements aren't already sorted, we simply apply a swap.
+
+</details>
+
+---
+
+<details>
+
+<summary>ft_sort_three()</summary>
+
+<br>
+
+```C
+void	ft_sort_three(t_swap **stack_a)
+{
+	if ((*stack_a)->content > (*stack_a)->next->content
+		&& (*stack_a)->content > (*stack_a)->next->next->content)
+		rotate(stack_a, 'a');
+	else if ((*stack_a)->next->content > (*stack_a)->content
+		&& (*stack_a)->next->content > (*stack_a)->next->next->content)
+		reverse_rotate(stack_a, 'a');
+	if ((*stack_a)->content > (*stack_a)->next->content)
+		swap(stack_a, 'a');
+}
+```
+It first checks if the top element is greater than both the second and third elements; if so, it rotates the stack to make the second element the new top. Next, it checks if the second element is greater than both the first and third; if true, it reverses the stack to bring the first element to the top. Finally, it checks if the first element is greater than the second and swaps them if necessary. This sequence of operations ensures that the three elements in the stack are arranged in ascending order.
+
+</details>
+
+---
+
+<details>
+
+<summary>ft_sort_four()</summary>
+
+<br>
+
+```C
+void	ft_sort_four(t_swap **stack_a, t_swap **stack_b, int nb_element)
+{
+	int	min_index;
+	int	i;
+
+	min_index = ft_find_min_index(*stack_a);
+	i = 0;
+	if (min_index == nb_element - 1)
+		reverse_rotate(stack_a, 'a');
+	else if (min_index != nb_element)
+	{
+		while (i < min_index)
+		{
+			rotate(stack_a, 'a');
+			i++;
+		}
+	}
+	push(stack_a, stack_b, 'b');
+	ft_sort_three(stack_a);
+	push(stack_b, stack_a, 'a');
+}
+```
+First, it identifies the position (`min_index`) of the smallest element in `stack_a`. If the smallest element is at the bottom of the stack, it performs a reverse rotation to bring it closer to the top; if it's located elsewhere (but not already at the top), it rotates the stack until the smallest element reaches the top. Once the smallest element is at the top, it pushes it to `stack_b`, effectively setting it aside. Next, it calls `ft_sort_three()` to sort the remaining three elements in `stack_a`. Finally, it pushes the smallest element back from `stack_b` to `stack_a`, resulting in a fully sorted four-element stack in ascending order.
+
+</details>
+
+---
+
+<details>
+
+<summary>ft_sort_five()</summary>
+
+<br>
+
+```C
+void	ft_sort_five(t_swap **stack_a, t_swap **stack_b, int nb_element)
+{
+	int	min_index;
+	int	i;
+
+	min_index = ft_find_min_index(*stack_a);
+	i = 0;
+	if (min_index == nb_element - 1)
+		reverse_rotate(stack_a, 'a');
+	else if (min_index != nb_element)
+	{
+		while (i < min_index)
+		{
+			rotate(stack_a, 'a');
+			i++;
+		}
+	}
+	push(stack_a, stack_b, 'b');
+	ft_sort_four(stack_a, stack_b, nb_element - 1);
+	push(stack_b, stack_a, 'a');
+}
+```
+The principle is the same as for the `ft_sort_four()` function but at the end of the function we call the aforementioned `ft_sort_four()` function.
+
+</details>
+
+Finally, let's see the `ft_sort()` function which is the core of this project :
+
+```C
+void	ft_sort(t_swap **stack_a, t_swap **stack_b, int nb_element, int i)
+{
+	int		interval;
+	int		nb_element_a;
+	int		pivot;
+
+	interval = ft_define_interval(nb_element);
+	nb_element_a = ft_define_nb_element_stack(*stack_a);
+	pivot = nb_element / interval;
+	while (interval < nb_element_a)
+	{
+		while (i < interval)
+		{
+			if ((*stack_a)->index < interval)
+			{
+				push(stack_a, stack_b, 'b');
+				if ((*stack_b)->index > (interval - (nb_element / (2 * pivot)))
+					&& ft_define_nb_element_stack(*stack_b) != 1)
+					rotate(stack_b, 'b');
+				i++;
+			}
+			else
+				rotate(stack_a, 'a');
+		}
+		interval += ft_define_interval(nb_element_a);
+	}
+	ft_final_part(stack_a, stack_b);
+}
+```
+
+First, we start by define the `interval` variable thanks to this formula implemented in the `ft_define_interval()` function:
+
+```C
+divider = (nb_element / 10) + 15;
+divider = nb_element / divider;
+if (divider == 0)
+	divider = 3;
+interval = nb_element / divider;
+```
+
+The `ft_sort()` function sorts a stack by partitioning it into intervals and progressively pushing elements to a secondary stack, `stack_b`, based on their index values. First, it calculates an initial interval size by dividing the total number of elements (`nb_element`) by a computed divider, which is dynamically determined from the size of the stack to balance sorting efficiency. The function then iterates over `stack_a`, pushing elements with indices smaller than the current interval to `stack_b`. If an element in `stack_b` has an index in the upper half of the interval, it is rotated within `stack_b` to keep it closer to the top, aiding future sorting. Once all elements in `stack_a` within the current interval are processed, the interval size is increased, and the process repeats until all elements meet the interval condition. Finally, `ft_final_part()` is called.
+
+### File: algorithms_utils.c
+
+```C
+void	ft_final_part(t_swap **stack_a, t_swap **stack_b)
+{
+	while (ft_define_nb_element_stack(*stack_a) > 0)
+		push(stack_a, stack_b, 'b');
+	ft_push_to_stack_a(stack_a, stack_b);
+}
+```
+Here, as long as there are elements left in the `a_stack`, it pushes the remaining elements into the `b_stack`. Then, we call the `ft_push_to_stack_a()` function:
+
+```C
+static void	ft_push_to_stack_a(t_swap **stack_a, t_swap **stack_b)
+{
+	int	unsort_max;
+	int	sort_max;
+	int	nb_element_b;
+
+	while (*stack_b != NULL)
+	{
+		nb_element_b = ft_define_nb_element_stack(*stack_b);
+		unsort_max = ft_find_max_index(*stack_b);
+		sort_max = ft_find_element_unsort_stack(*stack_b, unsort_max);
+		if (unsort_max <= (nb_element_b / 2))
+			smart_rotate(stack_a, stack_b, sort_max);
+		else
+			smart_rev_rotate(stack_a, stack_b, sort_max);
+		push(stack_b, stack_a, 'a');
+		if (*stack_a != NULL && (*stack_a)->next != NULL)
+			ft_sort_two(stack_a);
+	}
+}
+```
+
+Need to finish here
 
 ### File: operations.c
 
@@ -121,7 +369,7 @@ Now let's take a look at the different manipulation operations.
 
 <details>
 
-<summary>swap</summary>
+<summary>swap()</summary>
 
 <br>
 
@@ -149,7 +397,7 @@ For the `swap()` function, we first perfom some basic verifications and do a cla
 
 <details>
 
-<summary>push</summary>
+<summary>push()</summary>
 
 <br>
 
@@ -191,7 +439,7 @@ For the `push()` function, first we check if `from_stack` has at least one eleme
 
 <details>
 
-<summary>rotate</summary>
+<summary>rotate()</summary>
 
 <br>
 
@@ -223,7 +471,7 @@ For the `rotate()` function, first we check if `stack` is non-empty. If `stack` 
 
 <details>
 
-<summary>reverse rotate</summary>
+<summary>reverse_rotate()</summary>
 
 <br>
 
